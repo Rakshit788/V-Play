@@ -1,7 +1,7 @@
 'use client'
 import * as React from "react";
-import { useDispatch  } from "react-redux";
-import { useState  } from "react";
+import { useDispatch , useSelector  } from "react-redux";
+import { useState, useEffect  } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser } from "@/redux/authslice";
 import Link from "next/link";
@@ -16,6 +16,7 @@ const router  =  useRouter()
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+
   const onSubmit = async (event) => {
     event.preventDefault(); // Prevent page reload
 
@@ -24,12 +25,15 @@ const router  =  useRouter()
     try {
    
       const result = await dispatch(  loginUser({ email, password }));
-  
+ 
+
 
   
-      if (result.payload) {
-   
-        router.push("/");
+      if (result.payload.sucess) {
+        router.push('/')
+        
+    console.log('login sucessful') ;
+    
       } else {
         console.error("Login failed:", result);
         setError("Invalid email or password.");
@@ -40,6 +44,9 @@ const router  =  useRouter()
       setError("An error occurred. Please try again.");
     }
   };
+
+  
+
 
   return (
     <div className="flex items-center justify-center min-h-screen">

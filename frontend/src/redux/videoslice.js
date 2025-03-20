@@ -8,7 +8,8 @@ import toast from "react-hot-toast"
 const initialstate = {
      subscribers: [],  // check rather to make it number or array  
      watch_history: [],
-     liked_videos: [],
+     liked_videos:  [],  // ✅ Load from Local Storage
+  dislike_videos:   [], 
      playlist: [],
      myvideos: [],
      randomVideos: [],
@@ -86,9 +87,32 @@ export  const videosdetals =  createAsyncThunk('video/detaills' ,  async (id , {
        } catch (error) {
            console.log(error) ; 
            return rejectWithValue(error.response.data) ; 
-           
+          
        }
 })
+
+
+
+
+export const handleLikeDislike = createAsyncThunk(
+  "user/like",
+  async ({ id, action }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/api/v1/video/${id}/${action}`,
+        {},
+        { withCredentials: true }
+      );
+      console.log(response);
+      
+
+      // ✅ Return only necessary data (exclude headers)
+      return response.data;  
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
+    }
+  }
+);
 
 
 
@@ -143,13 +167,45 @@ const videoslice = createSlice({
                 if(!state.watch_history.includes(action.payload?._id)) state.watch_history.push(action.payload._id) ; 
           })
 
-          builder.addCase(videosdetals.rejected ,(state ,action ) =>{
-                state.currentVideo =  [] ; 
-                state.error   =  true  ; 
-          })
-
+          builder.addCase(handleLikeDislike.fulfilled, (state, action) => {
+               console.log(action.payload);
+             
+               const { id, action: handleld } = action.payload;
+               console.log(handleld);
+             
+               if (handleld === "Like") {
+                 console.log(state.liked_videos);
+                 console.log(state.dislike_videos);
+             
+                 if (state.dislike_videos.includes(id)) {
+                   state.dislike_videos = state.dislike_videos.filter((oid) => oid !== id);
+                 }
+             
+                 if (!state.liked_videos.includes(id)) {
+                   state.liked_videos.push(id);
+                 }
+             
+               } else {
+                 if (state.liked_videos.includes(id)) {
+                   state.liked_videos = state.liked_videos.filter((oid) => oid !== id);
+                 }
+             
+                 if (!state.dislike_videos.includes(id)) {
+                   state.dislike_videos.push(id);
+                 }
+               }
+             
+               // ✅ Move localStorage update outside
+               setTimeout(() => {
+                 localStorage.setItem("disliked_videos", JSON.stringify(state.dislike_videos));
+                 localStorage.setItem("liked_videos", JSON.stringify(state.liked_videos));
+               }, 0);
+             });
+             
      }
 })
+
+
 
 
 

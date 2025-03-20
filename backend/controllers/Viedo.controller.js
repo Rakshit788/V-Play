@@ -93,7 +93,9 @@ export  const video_Uploader  =  async(req,res)=>{
 export const handleLikeDislike = async (req, res) => {
   try {
     const videoId = req.params.id; // Extract video ID from params
-    const userId = req?.user?._id; // Extract user ID
+    const userId = req?.user?.id; // Extract user ID
+    console.log(userId);
+    
     const action = req.params.action; // Extract action (Like or Dislike)
 
     console.log({ videoId, userId, action }); // Debugging
@@ -108,6 +110,8 @@ export const handleLikeDislike = async (req, res) => {
     if (!video) {
       return res.status(404).json({ msg: "Error: Video not found." });
     }
+   
+    
 
     // Handle actions
     if (action === "Like") {
@@ -139,9 +143,12 @@ export const handleLikeDislike = async (req, res) => {
 
     // Respond with updated like and dislike counts
     return res.json({
+      id: videoId,
       msg: "Like/Dislike operation successful.",
+      action : action , 
       likes: video.likes.length,
       dislikes: video.dislikes.length,
+      sucess : true  
     });
   } catch (error) {
     console.error(error);

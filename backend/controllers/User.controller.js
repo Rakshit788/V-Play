@@ -37,6 +37,8 @@ export const register = async (req, res) => {
 // Login Controller
 export const login = async (req, res) => {
     const { email, password } = req.body;
+    console.log(email, password);
+    
    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -55,7 +57,7 @@ export const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
-        console.log("hi");
+        console.log(user);
         
         const token =  user.generateToken() ;
           
@@ -68,7 +70,7 @@ export const login = async (req, res) => {
         
     
         
-     return    res.status(200).json({msg : "user loggend in  sucessfully " ,  user: {usersent} ,  token} );
+     return    res.status(200).json({msg : "user loggend in  sucessfully " ,  user: {usersent} ,  token ,  sucess: true} );
     } catch (error) {
         res.status(500).json({ message: "Server error" });
     }

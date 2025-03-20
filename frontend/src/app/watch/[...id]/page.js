@@ -2,14 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { videosdetals } from "@/redux/videoslice";
+import { handleLikeDislike } from "@/redux/videoslice"; 
+
+
 import Image from "next/image";
 
 const VideoDetails = () => {
   const params = useParams();
   const dispatch = useDispatch();
+ 
 
+
+
+  
+  
+ const [liked_videos , setliked_videos] =  useState(JSON.parse(localStorage.getItem('liked_videos') )) ;
+ const [disliked_videos , sedistliked_videos] =  useState(JSON.parse(localStorage.getItem('dislike_videos') ))
   const [video, setVideo] = useState(null);
   const [similarVideos, setSimilarVideos] = useState([]);
   const [comments, setComments] = useState([]);
@@ -18,13 +28,15 @@ const VideoDetails = () => {
   const [disliked, setDisliked] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
 
+ 
+
   useEffect(() => {
     if (!params?.id) return;
 
     const fetchVideo = async () => {
       try {
         const data = await dispatch(videosdetals(params.id)).unwrap();
-        console.log(data?.video);
+    
         
         setVideo(data?.video);
         setComments(data.comments || []);
@@ -38,15 +50,37 @@ const VideoDetails = () => {
     fetchVideo();
   }, [params.id, dispatch]);
 
-  const handleLike = () => {
-    setLiked(!liked);
-    if (disliked) setDisliked(false);
+  
+  const handleLike = async () => {
+    try {
+      await dispatch(handleLikeDislike({ id: params.id, action:'Like' }));
+      const lv  =  JSON.parse(localStorage.getItem('liked_videos') )
+      setliked_videos(lv)
+      // console.log(liked_videos, 'l');
+      // console.log(disliked_videos)
+      setLiked(true);
+      setDisliked(false); // Reset dislike when liking
+    } catch (error) {
+      console.error("Error liking video:", error);
+    }
   };
 
-  const handleDislike = () => {
-    setDisliked(!disliked);
-    if (liked) setLiked(false);
+  const handleDislike = async () => {
+    try {
+      await dispatch(handleLikeDislike({ id: params.id, action: "Dislike" }));
+      const dl  =  localStorage.getItem('dislike_videos')
+      sedistliked_videos(dl)
+      // console.log(liked_videos);
+      // console.log(disliked_videos, 'd')
+      
+      setDisliked(true);
+      setLiked(false); // Reset like when disliking
+    } catch (error) {
+      console.error("Error disliking video:", error);
+    }
   };
+
+ 
 
   const handleSubscribe = () => {
     setSubscribed(!subscribed);
@@ -75,7 +109,7 @@ const VideoDetails = () => {
             className={`px-4 py-2 rounded-lg ${
               liked ? "bg-green-600" : "bg-gray-700"
             } hover:bg-green-700`}
-            onClick={handleLike}
+            onClick={()=>{handleLike()}}
           >
             👍 Like
           </button>

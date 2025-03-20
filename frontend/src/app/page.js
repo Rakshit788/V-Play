@@ -32,7 +32,7 @@ export default function Header() {
   };
 
   return (
-    <div className="flex h-screen bg-black text-white">
+    <div className="flex h-full bg-black text-white">
       {/* Sidebar */}
       <aside className="w-[250px] hidden md:flex flex-col bg-gray-900 p-4 border-r border-gray-700">
         <h2 className="text-xl font-bold mb-4">Menu</h2>
